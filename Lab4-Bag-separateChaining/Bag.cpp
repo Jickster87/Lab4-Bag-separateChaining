@@ -5,7 +5,7 @@
 using namespace std;
 
 Bag::Bag() {
-    tableSizeM = 310000;
+    tableSizeM = 31;
     noElementsN = 0;
     alphaLoadFactor = 0.0f;
     T = new Node*[tableSizeM];
@@ -26,22 +26,17 @@ void Bag::updateAlpha() {
 
 void Bag::bagResize() {
     int oldTableSize = tableSizeM;
-    tableSizeM *= 2;  // Double the table size
+    tableSizeM *= 2;
     Node** newTable = new Node*[tableSizeM];
-
-    // Initialize new table buckets to nullptr
     for (int i = 0; i < tableSizeM; i++) {
         newTable[i] = nullptr;
     }
 
-    // Rehash all elements from the old table to the new table
     for (int i = 0; i < oldTableSize; i++) {
         Node* current = T[i];
         while (current != nullptr) {
-            int newIndex = current->key % tableSizeM; // Recalculate with new table size
+            int newIndex = h(current->key);  // Use h() for consistency
             Node* nextNode = current->next;
-
-            // Insert current node into new table at newIndex
 
             current->next = newTable[newIndex];
             newTable[newIndex] = current;
@@ -50,13 +45,9 @@ void Bag::bagResize() {
         }
     }
 
-    // Delete the old table and update the reference
     delete[] T;
     T = newTable;
-
-    // Update the load factor after resizing
     updateAlpha();
-  
 }
 
 void Bag::add(TElem elem) {
